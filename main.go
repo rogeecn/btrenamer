@@ -73,18 +73,30 @@ func run(cmd *cobra.Command, args []string) error {
 			log.Println("[ERR] ", err, " match: ", r.Match)
 			continue
 		}
-		log.Println("[BINGO] ", result)
-		// rename old to new path
 		newFullPath := filepath.Join(filepath.Dir(rawPath), result)
-		log.Println("[newFullPath] ", newFullPath)
-		os.Rename(rawPath, newFullPath)
+
+		if !dirExists(newFullPath) {
+			log.Println("RENAME: ", rawPath, " ==> ", newFullPath)
+			if err := os.Rename(rawPath, newFullPath); err != nil {
+				return errors.Wrap(err, "rename failed")
+			}
+		} else {
+			// 所有文件移动过去
+			files, err := os.ReadDir(rawPath)
+			if err != nil {
+				return errors.Wrap(err, "read dir failed")
+			}
+
+			for _, file := range files {
+				os.Rename(filepath.Join(rawPath, file.Name()), filepath.Join(newFullPath, file.Name()))
+			}
+		}
 
 		filepath.Walk(newFullPath, func(filePath string, info fs.FileInfo, err error) error {
 			if filePath == newFullPath {
 				return nil
 			}
 			baseName := info.Name()[:len(info.Name())-len(path.Ext(info.Name()))]
-			log.Println(">>>> ", baseName)
 			for _, junk := range r.Junk {
 				if baseName == junk {
 					os.Remove(filePath)

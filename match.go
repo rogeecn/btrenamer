@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"regexp"
 )
 
@@ -21,4 +22,12 @@ func matchAndReplace(raw string, rule Rule) (string, bool, error) {
 		matchItems = append(matchItems, any(item))
 	}
 	return fmt.Sprintf(rule.Rename, matchItems...), true, nil
+}
+
+func dirExists(dir string) bool {
+	info, err := os.Stat(dir)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return info.IsDir()
 }
