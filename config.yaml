@@ -1,0 +1,6 @@
+version: 1.0.1
+rules:
+  - match: ^【高清影视之家发布\s*www\.HDBTHD\.com】(.*?)(?:\[.*?\]*)\..*?((?:20|19)\d{2}).*?$
+    rename: "%s (%s)"
+    junk:
+      - 【高清影视之家发布 www.HDBTHD.com】【高清影视之家发布 www.HDBTHD.com】
