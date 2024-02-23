@@ -4,7 +4,7 @@ junk:
   - 【更多高清剧集下载请访问 www.DDHDTV.com】【更多剧集打包下载请访问 www.DDHDTV.com】
   - 【更多无水印蓝光原盘请访问 www.BBQDDQ.com】【更多无水印蓝光原盘请访问 www.BBQDDQ.com】
 # destination: /home/rogee/projects/btrenamer/t
-destination: /downloads
+destination: /medias
 
 rules:
   - match: ^(?:【.*?】)?(.*?)(?:\[.*?\]*)\..*?(S\d{2}).*?((?:20|19)\d{2}).*?$
