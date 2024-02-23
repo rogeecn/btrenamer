@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io/fs"
 	"os"
 	"path"
 	"path/filepath"
@@ -52,11 +53,21 @@ func moveFiles(from, to string, junks []string) error {
 		baseName := file.Name()[:len(file.Name())-len(path.Ext(file.Name()))]
 
 		match := false
-		for _, junk := range junks {
-			if baseName == junk {
+		if strings.HasPrefix(baseName, "【") {
+			toSmall, err := isFileToSmall(file)
+			if err == nil && toSmall {
 				match = true
 			}
 		}
+
+		if !match {
+			for _, junk := range junks {
+				if baseName == junk {
+					match = true
+				}
+			}
+		}
+
 		if match {
 			continue
 		}
@@ -67,4 +78,13 @@ func moveFiles(from, to string, junks []string) error {
 	}
 
 	return nil
+}
+
+func isFileToSmall(f fs.DirEntry) (bool, error) {
+	fi, err := f.Info()
+	if err != nil {
+		return false, err
+	}
+
+	return fi.Size() < 1024*1024, nil
 }
