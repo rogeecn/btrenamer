@@ -1,16 +1,16 @@
 version: 1.0.1
-rules:
-  - match: ^(?:【.*?】)?(.*?)(?:\[.*?\]*)\..*?((?:20|19)\d{2}).*?$
-    rename: "$1 ($2)"
-    junk:
-      - 【高清影视之家发布 www.HDBTHD.com】【高清影视之家发布 www.HDBTHD.com】
-      - 【更多无水印蓝光原盘请访问 www.HDBTHD.com】【更多无水印蓝光原盘请访问 www.HDBTHD.com】
-      - 【更多无水印蓝光原盘请访问 www.BBQDDQ.com】【更多无水印蓝光原盘请访问 www.BBQDDQ.com】
+junk:
+  - 【更多电视剧集下载请访问 www.DDHDTV.com】【更多剧集打包下载请访问 www.DDHDTV.com】
+  - 【更多高清剧集下载请访问 www.DDHDTV.com】【更多剧集打包下载请访问 www.DDHDTV.com】
+  - 【更多无水印蓝光原盘请访问 www.BBQDDQ.com】【更多无水印蓝光原盘请访问 www.BBQDDQ.com】
+# destination: /home/rogee/projects/btrenamer/t
+destination: /downloads
 
+rules:
   - match: ^(?:【.*?】)?(.*?)(?:\[.*?\]*)\..*?(S\d{2}).*?((?:20|19)\d{2}).*?$
     rename: "$1 ($3)/$2"
-    junk:
-      - 【更多电视剧集下载请访问 www.DDHDTV.com】【更多剧集打包下载请访问 www.DDHDTV.com】
-      - 【更多高清剧集下载请访问 www.DDHDTV.com】【更多剧集打包下载请访问 www.DDHDTV.com】
-      - 【更多无水印蓝光原盘请访问 www.BBQDDQ.com】【更多无水印蓝光原盘请访问 www.BBQDDQ.com】
+    dir: tv
 
+  - match: ^(?:【.*?】)?(.*?)(?:\[.*?\]*)\..*?((?:20|19)\d{2}).*?$
+    rename: "$1 ($2)"
+    dir: movie

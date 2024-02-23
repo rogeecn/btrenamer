@@ -42,12 +42,20 @@ func dirExists(dir string) bool {
 	return info.IsDir()
 }
 
-func moveFiles(from, to string, junks []string) error {
+func moveFiles(from, to string, rule Config, ruleIdx int) error {
 	files, err := os.ReadDir(from)
 	if err != nil {
 		return errors.Wrap(err, "read dir failed")
 	}
 
+	newPath := filepath.Join(rule.Destination, rule.Rules[ruleIdx].Dir, to)
+	if !dirExists(newPath) {
+		if err := os.MkdirAll(newPath, os.ModePerm); err != nil {
+			return err
+		}
+	}
+
+	junks := rule.Junk[:]
 	junks = append(junks, "metadata")
 	for _, file := range files {
 		baseName := file.Name()[:len(file.Name())-len(path.Ext(file.Name()))]
@@ -72,7 +80,7 @@ func moveFiles(from, to string, junks []string) error {
 			continue
 		}
 
-		if err := os.Rename(filepath.Join(from, file.Name()), filepath.Join(to, file.Name())); err != nil {
+		if err := os.Rename(filepath.Join(from, file.Name()), filepath.Join(newPath, file.Name())); err != nil {
 			return err
 		}
 	}

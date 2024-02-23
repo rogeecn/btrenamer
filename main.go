@@ -75,9 +75,9 @@ func run(cmd *cobra.Command, args []string) error {
 
 	for _, rawPath := range args {
 		rawPath = strings.TrimSuffix(rawPath, "/")
-		for _, r := range rule.Rules {
+		for i, r := range rule.Rules {
 			baseName := filepath.Base(rawPath)
-			result, match, err := matchAndReplace(baseName, r)
+			path, match, err := matchAndReplace(baseName, r)
 			if !match {
 				continue
 			}
@@ -85,15 +85,8 @@ func run(cmd *cobra.Command, args []string) error {
 				log.Println("[ERR] ", err, " match: ", r.Match)
 				continue
 			}
-			newPath := filepath.Join(filepath.Dir(rawPath), result)
 
-			if !dirExists(newPath) {
-				if err := os.MkdirAll(newPath, os.ModePerm); err != nil {
-					return err
-				}
-			}
-
-			if err := moveFiles(rawPath, newPath, r.Junk); err != nil {
+			if err := moveFiles(rawPath, path, rule, i); err != nil {
 				return err
 			}
 
