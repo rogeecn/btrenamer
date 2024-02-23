@@ -1,10 +1,8 @@
 package main
 
 import (
-	"io/fs"
 	"log"
 	"os"
-	"path"
 	"path/filepath"
 	"strings"
 
@@ -59,52 +57,44 @@ func run(cmd *cobra.Command, args []string) error {
 	}
 
 	log.Println("rules:", rule.Rules)
-	log.Println("match: ", args[0])
-	rawPath := strings.TrimSuffix(args[0], "/")
-	// rawPath = "./test/【高清影视之家发布 www.HDBTHD.com】飞鸭向前冲[高码版][国英多音轨+中文字幕].Migration.2023.2160p.HQ.WEB-DL.H265.DDP5.1.2Audio-DreamHD"
+	log.Println("match: ", args)
+	args = []string{
+		"./test/【高清影视之家发布 www.HDBTHD.com】飞鸭向前冲[高码版][国英多音轨+中文字幕].Migration.2023.2160p.HQ.WEB-DL.H265.DDP5.1.2Audio-DreamHD",
+		"./test/【高清剧集网发布 www.DDHDTV.com】猎冰[第04-05集][国语音轨+简繁英字幕].The.Hunter.S01.2024.1080p.WeTV.WEB-DL.H264.AAC-BlackTV",
+		"./test/【高清剧集网发布 www.DDHDTV.com】猎冰[第01-03集][国语音轨+简繁英字幕].The.Hunter.S01.2024.1080p.WeTV.WEB-DL.H264.AAC-BlackTV",
+		"./test/【高清剧集网发布 www.DDHDTV.com】猎冰[第04-05集][国语音轨+简繁英字幕].The.Hunter.S02.2024.1080p.WeTV.WEB-DL.H264.AAC-BlackTV",
+		"./test/【高清剧集网发布 www.DDHDTV.com】猎冰[第01-03集][国语音轨+简繁英字幕].The.Hunter.S02.2024.1080p.WeTV.WEB-DL.H264.AAC-BlackTV",
+	}
 
-	for _, r := range rule.Rules {
-		baseName := filepath.Base(rawPath)
-		result, match, err := matchAndReplace(baseName, r)
-		if !match {
-			continue
-		}
-		if err != nil {
-			log.Println("[ERR] ", err, " match: ", r.Match)
-			continue
-		}
-		newFullPath := filepath.Join(filepath.Dir(rawPath), result)
-
-		if !dirExists(newFullPath) {
-			log.Println("RENAME: ", rawPath, " ==> ", newFullPath)
-			if err := os.Rename(rawPath, newFullPath); err != nil {
-				return errors.Wrap(err, "rename failed")
+	for _, rawPath := range args {
+		rawPath = strings.TrimSuffix(rawPath, "/")
+		for _, r := range rule.Rules {
+			baseName := filepath.Base(rawPath)
+			result, match, err := matchAndReplace(baseName, r)
+			if !match {
+				continue
 			}
-		} else {
-			// 所有文件移动过去
-			files, err := os.ReadDir(rawPath)
 			if err != nil {
-				return errors.Wrap(err, "read dir failed")
+				log.Println("[ERR] ", err, " match: ", r.Match)
+				continue
 			}
+			newPath := filepath.Join(filepath.Dir(rawPath), result)
 
-			for _, file := range files {
-				os.Rename(filepath.Join(rawPath, file.Name()), filepath.Join(newFullPath, file.Name()))
-			}
-		}
-
-		filepath.Walk(newFullPath, func(filePath string, info fs.FileInfo, err error) error {
-			if filePath == newFullPath {
-				return nil
-			}
-			baseName := info.Name()[:len(info.Name())-len(path.Ext(info.Name()))]
-			for _, junk := range r.Junk {
-				if baseName == junk {
-					os.Remove(filePath)
+			if !dirExists(newPath) {
+				if err := os.MkdirAll(newPath, os.ModePerm); err != nil {
+					return err
 				}
 			}
-			return nil
-		})
-		break
+
+			if err := moveFiles(rawPath, newPath, r.Junk); err != nil {
+				return err
+			}
+
+			if err := os.RemoveAll(rawPath); err != nil {
+				return err
+			}
+			break
+		}
 	}
 
 	return nil
