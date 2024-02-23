@@ -6,6 +6,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strings"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
@@ -59,12 +60,11 @@ func run(cmd *cobra.Command, args []string) error {
 
 	log.Println("rules:", rule.Rules)
 	log.Println("match: ", args[0])
-	rawPath := args[0]
+	rawPath := strings.TrimSuffix(args[0], "/")
 	// rawPath = "./test/【高清影视之家发布 www.HDBTHD.com】飞鸭向前冲[高码版][国英多音轨+中文字幕].Migration.2023.2160p.HQ.WEB-DL.H265.DDP5.1.2Audio-DreamHD"
 
 	for _, r := range rule.Rules {
 		baseName := filepath.Base(rawPath)
-
 		result, match, err := matchAndReplace(baseName, r)
 		if !match {
 			continue
