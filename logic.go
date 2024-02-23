@@ -47,6 +47,7 @@ func moveFiles(from, to string, junks []string) error {
 		return errors.Wrap(err, "read dir failed")
 	}
 
+	junks = append(junks, "metadata")
 	for _, file := range files {
 		baseName := file.Name()[:len(file.Name())-len(path.Ext(file.Name()))]
 
