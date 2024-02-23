@@ -76,6 +76,7 @@ func run(cmd *cobra.Command, args []string) error {
 		log.Println("[BINGO] ", result)
 		// rename old to new path
 		newFullPath := filepath.Join(filepath.Dir(rawPath), result)
+		log.Println("[newFullPath] ", newFullPath)
 		os.Rename(rawPath, newFullPath)
 
 		filepath.Walk(newFullPath, func(filePath string, info fs.FileInfo, err error) error {
