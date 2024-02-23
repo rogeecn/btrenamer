@@ -4,6 +4,8 @@ rules:
     rename: "$1 ($2)"
     junk:
       - 【高清影视之家发布 www.HDBTHD.com】【高清影视之家发布 www.HDBTHD.com】
+      - 【更多无水印蓝光原盘请访问 www.HDBTHD.com】【更多无水印蓝光原盘请访问 www.HDBTHD.com】
+
   - match: ^【高清剧集网发布\s*www\.DDHDTV\.com】(.*?)(?:\[.*?\]*)\..*?(S\d{2}).*?((?:20|19)\d{2}).*?$
     rename: "$1 ($3)/$2"
     junk:
