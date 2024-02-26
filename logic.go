@@ -97,9 +97,10 @@ func moveFiles(from, to string, rule Config, ruleIdx int) error {
 		newFilename := file.Name()
 		if r.MatchString(file.Name()) {
 			matches := r.FindStringSubmatch(file.Name())
-			if len(matches) == 3 {
-				newFilename = fmt.Sprintf("%s.%s", matches[1], matches[2])
+			if len(matches) != 3 {
+				continue
 			}
+			newFilename = fmt.Sprintf("%s.%s", matches[1], matches[2])
 		}
 
 		if err := move(filepath.Join(from, file.Name()), filepath.Join(newPath, newFilename)); err != nil {

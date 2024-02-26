@@ -43,6 +43,8 @@ func init() {
 	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", "", "config file (default is $HOME/.btrenamer.yaml)")
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	rootCmd.Flags().BoolVarP(&debug, "debug", "d", false, "is debug mode")
+
+	rootCmd.AddCommand(renameCmd)
 }
 
 func run(cmd *cobra.Command, args []string) error {
@@ -115,6 +117,10 @@ func renameSeasonFiles(cmd *cobra.Command, args []string) error {
 	}
 
 	path := args[0]
+	if !dirExists(path) {
+		return errors.New("dir not exists: " + path)
+	}
+
 	files, err := os.ReadDir(path)
 	if err != nil {
 		return errors.Wrap(err, "read dir failed")
@@ -129,10 +135,13 @@ func renameSeasonFiles(cmd *cobra.Command, args []string) error {
 		if r.MatchString(file.Name()) {
 			matches := r.FindStringSubmatch(file.Name())
 			if len(matches) != 3 {
-				newFilename := fmt.Sprintf("%s.%s", matches[1], matches[2])
-				if err := os.Rename(filepath.Join(path, file.Name()), filepath.Join(path, newFilename)); err != nil {
-					return err
-				}
+				continue
+			}
+			newFilename := fmt.Sprintf("%s.%s", matches[1], matches[2])
+
+			log.Println("rename: from ", file.Name(), " to: ", newFilename)
+			if err := os.Rename(filepath.Join(path, file.Name()), filepath.Join(path, newFilename)); err != nil {
+				return err
 			}
 		}
 	}
