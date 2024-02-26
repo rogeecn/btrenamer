@@ -56,6 +56,12 @@ func moveFiles(from, to string, rule Config, ruleIdx int) error {
 		}
 	}
 
+	tvFileRegExp := `(.*?\.S\d{2}E\d{2}\.\d{4}\..*?)\..*\.(.*?)$`
+	r, err := regexp.Compile("(?i)" + tvFileRegExp)
+	if err != nil {
+		return err
+	}
+
 	junks := rule.Junk[:]
 	junks = append(junks, "metadata")
 	for _, file := range files {
@@ -81,7 +87,15 @@ func moveFiles(from, to string, rule Config, ruleIdx int) error {
 			continue
 		}
 
-		if err := move(filepath.Join(from, file.Name()), filepath.Join(newPath, file.Name())); err != nil {
+		newFilename := file.Name()
+		if r.MatchString(file.Name()) {
+			matches := r.FindStringSubmatch(file.Name())
+			if len(matches) == 3 {
+				newFilename = fmt.Sprintf("%s.%s", matches[1], matches[2])
+			}
+		}
+
+		if err := move(filepath.Join(from, file.Name()), filepath.Join(newPath, newFilename)); err != nil {
 			return err
 		}
 	}
