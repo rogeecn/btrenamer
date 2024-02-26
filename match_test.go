@@ -21,7 +21,6 @@ func Test_matchAndReplace(t *testing.T) {
 				rule: Rule{
 					Match:  `^【高清影视之家发布\s+www\.HDBTHD\.com】(.*?)(?:\[.*?\]*)\..*?((?:20|19)\d{2}).*?$`,
 					Rename: "%s (%s)",
-					Junk:   []string{},
 				},
 			},
 
