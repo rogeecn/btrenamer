@@ -23,13 +23,18 @@ var tvFileRegExp = `(.*?\.S\d{2}E\d{2}\.\d{4}\..*?)\..*\.(.*?)$`
 var rootCmd = &cobra.Command{
 	Use:   "btrenamer",
 	Short: "A bt rule base rename tool",
-	RunE:  run,
 }
 
 var renameCmd = &cobra.Command{
 	Use:   "rename",
 	Short: "rename dir season files",
 	RunE:  renameSeasonFiles,
+}
+
+var runCmd = &cobra.Command{
+	Use:   "run",
+	Short: "rename dir season files",
+	RunE:  run,
 }
 
 func main() {
@@ -45,6 +50,7 @@ func init() {
 	rootCmd.Flags().BoolVarP(&debug, "debug", "d", false, "is debug mode")
 
 	rootCmd.AddCommand(renameCmd)
+	rootCmd.AddCommand(runCmd)
 }
 
 func run(cmd *cobra.Command, args []string) error {
