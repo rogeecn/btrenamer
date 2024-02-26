@@ -1,9 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -15,12 +17,19 @@ var (
 	cfgFile string
 	debug   bool
 )
+var tvFileRegExp = `(.*?\.S\d{2}E\d{2}\.\d{4}\..*?)\..*\.(.*?)$`
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "btrenamer",
 	Short: "A bt rule base rename tool",
 	RunE:  run,
+}
+
+var renameCmd = &cobra.Command{
+	Use:   "rename",
+	Short: "rename dir season files",
+	RunE:  renameSeasonFiles,
 }
 
 func main() {
@@ -94,6 +103,37 @@ func run(cmd *cobra.Command, args []string) error {
 				return err
 			}
 			break
+		}
+	}
+
+	return nil
+}
+
+func renameSeasonFiles(cmd *cobra.Command, args []string) error {
+	if len(args) == 0 {
+		return errors.New("need dir params")
+	}
+
+	path := args[0]
+	files, err := os.ReadDir(path)
+	if err != nil {
+		return errors.Wrap(err, "read dir failed")
+	}
+
+	r, err := regexp.Compile(tvFileRegExp)
+	if err != nil {
+		return err
+	}
+
+	for _, file := range files {
+		if r.MatchString(file.Name()) {
+			matches := r.FindStringSubmatch(file.Name())
+			if len(matches) != 3 {
+				newFilename := fmt.Sprintf("%s.%s", matches[1], matches[2])
+				if err := os.Rename(filepath.Join(path, file.Name()), filepath.Join(path, newFilename)); err != nil {
+					return err
+				}
+			}
 		}
 	}
 

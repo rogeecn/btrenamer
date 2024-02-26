@@ -64,7 +64,6 @@ func moveFiles(from, to string, rule Config, ruleIdx int) error {
 		}
 	}
 
-	tvFileRegExp := `(.*?\.S\d{2}E\d{2}\.\d{4}\..*?)\..*\.(.*?)$`
 	r, err := regexp.Compile("(?i)" + tvFileRegExp)
 	if err != nil {
 		return err
