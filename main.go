@@ -73,12 +73,18 @@ func run(cmd *cobra.Command, args []string) error {
 		return errors.Wrap(err, "unmarshal failed")
 	}
 
-	if len(args) < 1 {
-		return errors.New("no path provided")
+	if len(args) == 0 {
+		files, err := os.ReadDir(".")
+		if err != nil {
+			return err
+		}
+		for _, file := range files {
+			args = append(args, file.Name())
+		}
 	}
 
-	log.Println("rules:", rule.Rules)
-	log.Println("match: ", args)
+	// log.Println("rules:", rule.Rules)
+	// log.Println("match: ", args)
 
 	if debug {
 		args = []string{
@@ -102,6 +108,7 @@ func run(cmd *cobra.Command, args []string) error {
 				log.Println("[ERR] ", err, " match: ", r.Match)
 				continue
 			}
+			log.Println("match: ", baseName)
 
 			if err := moveFiles(rawPath, path, rule, i); err != nil {
 				return err
