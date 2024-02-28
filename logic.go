@@ -14,25 +14,28 @@ import (
 )
 
 func matchAndReplace(raw string, rule Rule) (string, bool, error) {
-	r, err := regexp.Compile("(?i)" + rule.Match)
-	if err != nil {
-		return "", false, err
+	for _, pattern := range rule.Match {
+		r, err := regexp.Compile("(?i)" + pattern)
+		if err != nil {
+			return "", false, err
+		}
+
+		if !r.MatchString(raw) {
+			continue
+		}
+
+		items := r.FindAllStringSubmatch(raw, -1)
+		matchItems := items[0][1:]
+
+		replacerItems := []string{}
+		for i, item := range matchItems {
+			replacerItems = append(replacerItems, fmt.Sprintf("$%d", i+1))
+			replacerItems = append(replacerItems, item)
+		}
+
+		return strings.NewReplacer(replacerItems...).Replace(rule.Rename), true, nil
 	}
-
-	if !r.MatchString(raw) {
-		return "", false, nil
-	}
-
-	items := r.FindAllStringSubmatch(raw, -1)
-	matchItems := items[0][1:]
-
-	replacerItems := []string{}
-	for i, item := range matchItems {
-		replacerItems = append(replacerItems, fmt.Sprintf("$%d", i+1))
-		replacerItems = append(replacerItems, item)
-	}
-
-	return strings.NewReplacer(replacerItems...).Replace(rule.Rename), true, nil
+	return "", false, nil
 }
 
 func dirExists(dir string) bool {

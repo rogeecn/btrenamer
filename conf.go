@@ -10,7 +10,7 @@ type Config struct {
 }
 
 type Rule struct {
-	Match  string
+	Match  []string
 	Rename string
 	Dir    string
 }
