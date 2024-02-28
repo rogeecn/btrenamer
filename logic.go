@@ -48,13 +48,14 @@ func dirExists(dir string) bool {
 
 func fileExists(dir string) bool {
 	_, err := os.Stat(dir)
-	if os.IsNotExist(err) {
-		return false
-	}
-	return true
+	return !os.IsNotExist(err)
 }
 
 func moveFiles(from, to string, rule Config, ruleIdx int) error {
+	if !dirExists(from) {
+		return nil
+	}
+
 	files, err := os.ReadDir(from)
 	if err != nil {
 		return errors.Wrap(err, "read dir failed")

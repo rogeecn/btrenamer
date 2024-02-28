@@ -19,7 +19,7 @@ func Test_matchAndReplace(t *testing.T) {
 			args{
 				raw: "【高清影视之家发布 www.HDBTHD.com】飞鸭向前冲[高码版][国英多音轨+中文字幕].Migration.2023.2160p.HQ.WEB-DL.H265.DDP5.1.2Audio-DreamHD",
 				rule: Rule{
-					Match:  `^【高清影视之家发布\s+www\.HDBTHD\.com】(.*?)(?:\[.*?\]*)\..*?((?:20|19)\d{2}).*?$`,
+					Match:  []string{`^【高清影视之家发布\s+www\.HDBTHD\.com】(.*?)(?:\[.*?\]*)\..*?((?:20|19)\d{2}).*?$`},
 					Rename: "%s (%s)",
 				},
 			},
