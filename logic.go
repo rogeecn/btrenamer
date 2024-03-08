@@ -46,11 +46,6 @@ func dirExists(dir string) bool {
 	return info.IsDir()
 }
 
-func fileExists(dir string) bool {
-	_, err := os.Stat(dir)
-	return !os.IsNotExist(err)
-}
-
 func moveFiles(from, to string, rule Config, ruleIdx int) error {
 	if !dirExists(from) {
 		return nil
@@ -79,7 +74,7 @@ func moveFiles(from, to string, rule Config, ruleIdx int) error {
 		baseName := file.Name()[:len(file.Name())-len(path.Ext(file.Name()))]
 
 		match := false
-		if strings.HasPrefix(baseName, "【") {
+		if strings.HasPrefix(baseName, "【") || strings.HasPrefix(baseName, "〔") {
 			toSmall, err := isFileToSmall(file)
 			if err == nil && toSmall {
 				match = true
@@ -125,10 +120,6 @@ func isFileToSmall(f fs.DirEntry) (bool, error) {
 }
 
 func move(source, destination string) error {
-	if fileExists(destination) {
-		return nil
-	}
-
 	err := os.Rename(source, destination)
 	if err != nil && strings.Contains(err.Error(), "invalid cross-device link") {
 		return moveCrossDevice(source, destination)

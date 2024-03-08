@@ -55,7 +55,7 @@ func init() {
 
 func run(cmd *cobra.Command, args []string) error {
 	viper.SetConfigType("yaml")
-	viper.SetConfigName("config")
+	viper.SetConfigName(".config")
 
 	if len(cfgFile) > 0 {
 		viper.SetConfigFile(cfgFile)
@@ -79,6 +79,9 @@ func run(cmd *cobra.Command, args []string) error {
 			return err
 		}
 		for _, file := range files {
+			if !file.IsDir() {
+				continue
+			}
 			args = append(args, file.Name())
 		}
 	}
