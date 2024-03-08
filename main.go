@@ -25,10 +25,16 @@ var rootCmd = &cobra.Command{
 	Short: "A bt rule base rename tool",
 }
 
-var renameCmd = &cobra.Command{
-	Use:   "rename",
+var seasonCmd = &cobra.Command{
+	Use:   "season",
 	Short: "rename dir season files",
 	RunE:  renameSeasonFiles,
+}
+
+var renameCmd = &cobra.Command{
+	Use:   "rename",
+	Short: "rename by reg exp",
+	RunE:  renameCurrentDirFiles,
 }
 
 var runCmd = &cobra.Command{
@@ -49,8 +55,9 @@ func init() {
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	rootCmd.Flags().BoolVarP(&debug, "debug", "d", false, "is debug mode")
 
-	rootCmd.AddCommand(renameCmd)
+	rootCmd.AddCommand(seasonCmd)
 	rootCmd.AddCommand(runCmd)
+	rootCmd.AddCommand(renameCmd)
 }
 
 func run(cmd *cobra.Command, args []string) error {
@@ -159,6 +166,52 @@ func renameSeasonFiles(cmd *cobra.Command, args []string) error {
 			if err := os.Rename(filepath.Join(path, file.Name()), filepath.Join(path, newFilename)); err != nil {
 				return err
 			}
+		}
+	}
+
+	return nil
+}
+
+// renameCurrentDirFiles
+func renameCurrentDirFiles(cmd *cobra.Command, args []string) error {
+	if len(args) != 2 {
+		return errors.New("need 2 params: from pattern and to pattern")
+	}
+
+	from, to := args[0], args[1]
+	rFrom, err := regexp.Compile("^" + from + "$")
+	if err != nil {
+		return err
+	}
+
+	files, err := os.ReadDir(".")
+	if err != nil {
+		return err
+	}
+	for _, file := range files {
+		if !rFrom.MatchString(file.Name()) {
+			log.Println("NoMatch: ", file.Name())
+			continue
+		}
+
+		match := rFrom.FindStringSubmatch(file.Name())
+
+		replacers := []string{}
+		for i, v := range match[1:] {
+			replacers = append(replacers, fmt.Sprintf("\\%d", i+1), string(v))
+		}
+		newFilename := strings.NewReplacer(replacers...).Replace(to)
+
+		// rename file
+		fmt.Println("From: ", file.Name())
+		fmt.Println("To  : ", newFilename)
+		fmt.Println("")
+		if file.Name() == newFilename {
+			continue
+		}
+
+		if err := os.Rename(file.Name(), newFilename); err != nil {
+			return err
 		}
 	}
 
